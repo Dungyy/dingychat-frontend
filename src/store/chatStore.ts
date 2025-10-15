@@ -13,6 +13,7 @@ interface ChatState {
   addTypingUser: (username: string) => void;
   removeTypingUser: (username: string) => void;
   clearMessages: () => void;
+  addCustomRoom: (room: string) => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
@@ -36,4 +37,5 @@ export const useChatStore = create<ChatState>((set) => ({
       typingUsers: state.typingUsers.filter((u) => u !== username),
     })),
   clearMessages: () => set({ messages: [] }),
+  addCustomRoom: (room) => set((state) => ({ currentRoom: room })), // Placeholder for future use
 }));

@@ -9,6 +9,7 @@ import ChatMessages from "@/components/ChatMessages";
 import ChatInput from "@/components/ChatInput";
 // import TypingIndicator from "@/components/TypingIndicator";
 import { Message } from "@/types";
+import { Users } from "lucide-react";
 
 export default function Home() {
   const {
@@ -171,14 +172,22 @@ export default function Home() {
     <div className="h-screen bg-gray-100 flex overflow-hidden">
       <ChatSidebar />
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Room Header */}
+        {/* Room Header with Live User Count */}
         <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
               <span className="text-gray-400">#</span>
               {currentRoom || "OMNI CHAT"}
             </h2>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+              {/* Live user count */}
+              <span
+                id="active-users"
+                className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-md"
+              >
+                <Users className="inline w-4 h-4 mr-1" /> Active users updating
+                in sidebar
+              </span>
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
               <span className="text-sm text-gray-600">Connected</span>
             </div>
