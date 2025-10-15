@@ -1,7 +1,7 @@
 export interface User {
   username: string;
   color: string;
-  token: string;
+  token?: string; // token is optional, not required for free user
 }
 
 export interface Message {

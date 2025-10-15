@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { login, register } from "@/lib/api";
+import { login, register, postFreeUser } from "@/lib/api";
 import { useChatStore } from "@/store/chatStore";
 import { connectSocket } from "@/lib/socket";
 
@@ -11,8 +11,10 @@ export default function LoginForm() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [freeChatLoading, setFreeChatLoading] = useState(false);
   const setUser = useChatStore((state) => state.setUser);
 
+  // ---- Login/Register Handler ----
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -32,17 +34,44 @@ export default function LoginForm() {
       setUser({ username, color, token });
       connectSocket(token);
     } catch (err) {
+      console.error(err);
       setError(isRegistering ? "Registration failed" : "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
+  // ---- Free Chat Handler (1hr) ----
+  const handleFreeChat = async () => {
+    setError("");
+    if (!username.trim()) {
+      setError("Please atleast enter a username for free chat.");
+      return;
+    }
+
+    setFreeChatLoading(true);
+    try {
+      // Fetch from backend
+      const { color } = await postFreeUser(username);
+
+      localStorage.setItem("username", username);
+      localStorage.setItem("color", color);
+      setUser({ username, color });
+    } catch (err) {
+      console.error(err);
+      setError("Free chat failed");
+    } finally {
+      setFreeChatLoading(false);
+    }
+  };
+
+  // ---- UI ----
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjIiLz48L2c+PC9zdmc+')] opacity-20"></div>
 
       <div className="relative bg-gray-800/50 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-700/50 p-8 w-full max-w-md">
+        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-block p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl mb-4">
             <svg
@@ -65,6 +94,7 @@ export default function LoginForm() {
           <p className="text-gray-400">Connect and chat in real-time</p>
         </div>
 
+        {/* Form */}
         <div className="space-y-4">
           {error && (
             <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg backdrop-blur-sm">
@@ -72,6 +102,7 @@ export default function LoginForm() {
             </div>
           )}
 
+          {/* Username */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Username
@@ -85,7 +116,7 @@ export default function LoginForm() {
               required
             />
           </div>
-
+          {/* Password */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Password
@@ -101,6 +132,7 @@ export default function LoginForm() {
             />
           </div>
 
+          {/* Submit */}
           <button
             onClick={handleSubmit}
             disabled={loading}
@@ -112,7 +144,19 @@ export default function LoginForm() {
               ? "Create Account"
               : "Sign In"}
           </button>
-
+          {/* Free Chat Button */}
+          {!isRegistering && (
+            <button
+              type="button"
+              onClick={handleFreeChat}
+              disabled={freeChatLoading}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed mb-2"
+            >
+              {freeChatLoading ? "Starting..." : "Try Free 1hr Chat"}
+            </button>
+          )}
+          <br />
+          {/* Toggle */}
           <p className="text-center text-sm text-gray-400">
             {isRegistering
               ? "Already have an account?"

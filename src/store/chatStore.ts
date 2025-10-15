@@ -17,7 +17,7 @@ interface ChatState {
 
 export const useChatStore = create<ChatState>((set) => ({
   user: null,
-  currentRoom: "general",
+  currentRoom: "",
   messages: [],
   typingUsers: [],
   setUser: (user) => set({ user }),
